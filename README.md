@@ -1,6 +1,6 @@
 # NeosFileStreamWriter
 A Plugin for [Neos VR](https://neos.com/) that adds a FileStreamWriter LogiX node.
-This is an alternative option to the WriteTextToFile Node that allows keeping the file handle open until explicitly closed to avoid repeated file open/read operations.
+This is an alternative option to the WriteTextToFile Node that allows keeping the file handle open until explicitly closed to avoid repeated file open/read/close operations.
 
 To use this node you'll need to be in an Unsafe world and enable the ShowExperimental option on a node browser.
 It can then be found under the `/Experimental/` Folder
