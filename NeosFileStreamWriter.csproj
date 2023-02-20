@@ -16,6 +16,14 @@
     <!-- If you don't want to provide a NeosPath in dotnet build, you can specify one here -->
     <!-- <NeosPath Condition="'$(NeosPath)'==''"></NeosPath>  -->
   </PropertyGroup>
+  <PropertyGroup Condition="'$(NeosPath)'==''">
+    <!-- Windows steam -->
+    <NeosPath Condition="Exists('C:\Program Files (x86)\Steam\steamapps\common\NeosVR\')">C:\Program Files (x86)\Steam\steamapps\common\NeosVR\</NeosPath>
+    <!-- Windows standalone -->
+    <NeosPath Condition="Exists('C:\Neos\app\')">C:\Neos\app\</NeosPath>
+    <!-- Linux steam -->
+    <NeosPath Condition="Exists('$(HOME)/.steam/steam/steamapps/common/NeosVR/')">$(HOME)/.steam/steam/steamapps/common/NeosVR/</NeosPath>
+  </PropertyGroup>
   <!-- Debug Build -->
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -43,8 +51,9 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <PostBuildEvent>cd "$(ProjectDir)"
-      powershell -NoProfile -ExecutionPolicy Bypass ./Scripts/PostBuild.ps1 '$(NeosPath)' $(ConfigurationName)
+     <!-- ../../ to escape out of bin/AutoPostX, $(ProjectDir) appears to be affected by the OutputPath -->
+    <PostBuildEvent>cd "../../$(ProjectDir)"
+      powershell -NoProfile -ExecutionPolicy Bypass -Command ./Scripts/PostBuild.ps1 '$(NeosPath)' $(ConfigurationName)
     </PostBuildEvent>
   </PropertyGroup>
   <!-- Release Build in without Unsafe Mode checks -->
@@ -56,36 +65,25 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
-
   <!-- CopyLocal False -->
   <ItemDefinitionGroup>
     <Reference>
       <Private>false</Private>
     </Reference>
   </ItemDefinitionGroup>
-
-  <PropertyGroup Condition="'$(NeosPath)'==''">
-    <!-- Windows steam -->
-    <NeosPath Condition="Exists('C:\Program Files (x86)\Steam\steamapps\common\NeosVR\')">C:\Program Files (x86)\Steam\steamapps\common\NeosVR\</NeosPath>
-    <!-- Windows standalone -->
-    <NeosPath Condition="Exists('C:\Neos\app\')">C:\Neos\app\</NeosPath>
-    <!-- Linux steam -->
-    <NeosPath Condition="Exists('$(HOME)/.steam/steam/steamapps/common/NeosVR/')">$(HOME)/.steam/steam/steamapps/common/NeosVR/</NeosPath>
-  </PropertyGroup>
-
   <ItemGroup>
-    <Reference Include="System" />
+    <Reference Include="System">
+    </Reference>
     <Reference Include="FrooxEngine">
-      <HintPath>$(NeosPath)Neos_Data\Managed\FrooxEngine.dll</HintPath>
+      <HintPath>$(NeosPath)\Neos_Data\Managed\FrooxEngine.dll</HintPath>
     </Reference>
     <Reference Include="BaseX">
-      <HintPath>$(NeosPath)BaseX.dll</HintPath>
+      <HintPath>$(NeosPath)\BaseX.dll</HintPath>
     </Reference>
     <Reference Include="System.Threading.Tasks.Dataflow">
-      <HintPath>$(NeosPath)Neos_Data\Managed\System.Threading.Tasks.Dataflow.dll</HintPath>
+      <HintPath>$(NeosPath)\Neos_Data\Managed\System.Threading.Tasks.Dataflow.dll</HintPath>
     </Reference>
   </ItemGroup>
-
   <ItemGroup>
     <Compile Include="FileStreamWriter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
