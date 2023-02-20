@@ -10,9 +10,13 @@
     <RootNamespace>NeosFileStreamWriter</RootNamespace>
     <AssemblyName>NeosFileStreamWriter</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <LangVersion>latestMajor</LangVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
+    <!-- If you don't want to provide a NeosPath in dotnet build, you can specify one here -->
+    <!-- <NeosPath Condition="'$(NeosPath)'==''"></NeosPath>  -->
   </PropertyGroup>
+  <!-- Debug Build -->
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
@@ -22,6 +26,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <!-- Release Build -->
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
@@ -30,6 +35,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <!-- Auto PostX Process Plugin -->
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'AutoPostX|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
@@ -41,46 +47,48 @@
       powershell -NoProfile -ExecutionPolicy Bypass ./Scripts/PostBuild.ps1 '$(NeosPath)' $(ConfigurationName)
     </PostBuildEvent>
   </PropertyGroup>
+  <!-- Release Build in without Unsafe Mode checks -->
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseUnsafe|AnyCPU'">
     <OutputPath>bin\ReleaseUnsafe\</OutputPath>
     <DefineConstants>TRACE;UNSAFE</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <LangVersion>7.3</LangVersion>
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
+
+  <!-- CopyLocal False -->
+  <ItemDefinitionGroup>
+    <Reference>
+      <Private>false</Private>
+    </Reference>
+  </ItemDefinitionGroup>
+
+  <PropertyGroup Condition="'$(NeosPath)'==''">
+    <!-- Windows steam -->
+    <NeosPath Condition="Exists('C:\Program Files (x86)\Steam\steamapps\common\NeosVR\')">C:\Program Files (x86)\Steam\steamapps\common\NeosVR\</NeosPath>
+    <!-- Windows standalone -->
+    <NeosPath Condition="Exists('C:\Neos\app\')">C:\Neos\app\</NeosPath>
+    <!-- Linux steam -->
+    <NeosPath Condition="Exists('$(HOME)/.steam/steam/steamapps/common/NeosVR/')">$(HOME)/.steam/steam/steamapps/common/NeosVR/</NeosPath>
+  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="BaseX, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>R:\SteamLibrary\steamapps\common\NeosVRBetaBuilds\NeosStandalone\app\BaseX.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="FrooxEngine, Version=2022.1.28.1335, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>R:\SteamLibrary\steamapps\common\NeosVRBetaBuilds\NeosStandalone\app\Neos_Data\Managed\FrooxEngine.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Threading.Tasks.Dataflow, Version=4.6.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>R:\SteamLibrary\steamapps\common\NeosVRBetaBuilds\NeosStandalone\app\Neos_Data\Managed\System.Threading.Tasks.Dataflow.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="FrooxEngine">
+      <HintPath>$(NeosPath)Neos_Data\Managed\FrooxEngine.dll</HintPath>
     </Reference>
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
+    <Reference Include="BaseX">
+      <HintPath>$(NeosPath)BaseX.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Dataflow">
+      <HintPath>$(NeosPath)Neos_Data\Managed\System.Threading.Tasks.Dataflow.dll</HintPath>
+    </Reference>
   </ItemGroup>
+
   <ItemGroup>
     <Compile Include="FileStreamWriter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
-  </PropertyGroup>
 </Project>
