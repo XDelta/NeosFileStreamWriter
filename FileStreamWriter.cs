@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
 using BaseX;
@@ -48,7 +49,7 @@ public class FileStreamWriter : LogixNode {
 	}
 
 	[ImpulseTarget]
-	public void Write() {
+	public async void Write() {
 #if !UNSAFE
 		if (!World.UnsafeMode) {
 			OnFailed.Trigger();
@@ -66,16 +67,14 @@ public class FileStreamWriter : LogixNode {
 		}
 
 		OnWriteStarted.Trigger();
-		Action onWriteFinished = null;
-		_writeQueue.Post(delegate {
+		bool result = await _writeQueue.SendAsync(() => {
 			_streamWriter.Write(_string);
-			if (onWriteFinished == null) {
-				onWriteFinished = () => {
-					OnWriteFinished.Trigger();
-				};
-			}
-			RunSynchronously(onWriteFinished, false);
 		});
+		if (result) {
+			OnWriteFinished.Trigger();
+		} else {
+			OnFailed.Trigger();
+		}
 	}
 
 	[ImpulseTarget]
@@ -108,17 +107,19 @@ public class FileStreamWriter : LogixNode {
 		base.OnDispose();
 	}
 
-	private static ActionBlock<Action> _writeQueue = new ActionBlock<Action>(
-		delegate (Action action) {
-				try {
-				action();
+	private readonly TransformBlock<Action, bool> _writeQueue = new(
+		async action => {
+			try {
+				await Task.Run(() => action());
+				return true;
 			} catch (Exception ex) {
-				UniLog.Log("Exception writing data to file:\n" + ((ex != null) ? ex.ToString() : null), false);
+				UniLog.Log($"Exception writing data to file:\n{ex}", false);
+				return false;
 			}
 		},
 		new ExecutionDataflowBlockOptions {
 			EnsureOrdered = true,
-			MaxDegreeOfParallelism = 1
+			MaxDegreeOfParallelism = Environment.ProcessorCount
 		}
 	);
 }
