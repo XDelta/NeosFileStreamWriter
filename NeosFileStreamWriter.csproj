@@ -51,7 +51,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-     <!-- ../../ to escape out of bin/AutoPostX, $(ProjectDir) appears to be affected by the OutputPath -->
+    <!-- ../../ to escape out of bin/AutoPostX, $(ProjectDir) appears to be affected by the OutputPath -->
     <PostBuildEvent>cd "../../$(ProjectDir)"
       powershell -NoProfile -ExecutionPolicy Bypass -Command ./Scripts/PostBuild.ps1 '$(NeosPath)' $(ConfigurationName)
     </PostBuildEvent>
@@ -72,8 +72,7 @@
     </Reference>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Reference Include="System">
-    </Reference>
+    <Reference Include="System" />
     <Reference Include="FrooxEngine">
       <HintPath>$(NeosPath)\Neos_Data\Managed\FrooxEngine.dll</HintPath>
     </Reference>

@@ -6,7 +6,6 @@ using BaseX;
 using FrooxEngine;
 using FrooxEngine.LogiX;
 
-
 namespace NeosFileStreamWriter;
 
 [Category("LogiX/Experimental")]
@@ -26,15 +25,15 @@ public class FileStreamWriter : LogixNode {
 	[ImpulseTarget]
 	public void Open() {
 #if !UNSAFE
-		if (!base.World.UnsafeMode) {
+		if (!World.UnsafeMode) {
 			OnFailed.Trigger();
 			return;
 		}
 #endif
 		if (_streamWriter != null) {
-			//File already open
-			return;
-		}
+			return; //File already open
+        }
+
 		string _filePath = FilePath.Evaluate(null);
 		bool _append = Append.Evaluate(false);
 		if (string.IsNullOrWhiteSpace(_filePath)) {
@@ -51,7 +50,7 @@ public class FileStreamWriter : LogixNode {
 	[ImpulseTarget]
 	public void Write() {
 #if !UNSAFE
-		if (!base.World.UnsafeMode) {
+		if (!World.UnsafeMode) {
 			OnFailed.Trigger();
 			return;
 		}
@@ -60,10 +59,8 @@ public class FileStreamWriter : LogixNode {
 			OnFailed.Trigger();
 			return;
 		}
-		string _string = TextString.Evaluate(null);
-		if (_string == null) {
-			_string = "";
-		}
+		string _string = TextString.Evaluate("");
+
 		if (NewLine.Evaluate(false)) {
 			_string += Environment.NewLine;
 		}
